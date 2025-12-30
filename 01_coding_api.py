@@ -28,8 +28,8 @@ def build_prompt_with_papers(prompt, papers_text, start_idx=0, end_idx=5):
     combined_text = prompt + "\n\n" + "\n\n".join(selected_papers)
     return combined_text
 
-start = 0
-end = 5 
+start = 5
+end = 10 
 # Example usage: papers 1 to 5 (0-based index)
 test_input = build_prompt_with_papers(prompt_text, papers_text, start_idx=start, end_idx=end)
 print(test_input)
