@@ -28,10 +28,10 @@ def build_prompt_with_papers(prompt, papers_text, start_idx=0, end_idx=5):
     return combined_text
 
 
-CONCURRENT_REQUESTS = 10
-START = 0
-END = 100
-VERSION = 1
+CONCURRENT_REQUESTS = 5
+START = 1000
+END = 5000
+VERSION = 2
 BATCH_SIZE = 5
 
 
@@ -100,14 +100,14 @@ async def main():
     results = await asyncio.gather(*tasks)
     failures = [r for r in results if not r["success"]]
 
-    print(
-        f"processed {len(results)} tasks, {len(results) - len(failures)} successful, {len(failures)} failures"
-    )
-
     for r in failures:
         print(
             f"  -> failed to process batch {r['start']} - {r['end']}: {r['exception']}"
         )
+
+    print(
+        f"processed {len(results)} tasks, {len(results) - len(failures)} successful, {len(failures)} failures"
+    )
 
 
 asyncio.run(main())
