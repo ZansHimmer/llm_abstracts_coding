@@ -29,9 +29,9 @@ def build_prompt_with_papers(prompt, papers_text, start_idx=0, end_idx=5):
 
 
 CONCURRENT_REQUESTS = 5
-START = 1000
-END = 1050
-VERSION = 2
+START = 1050
+END = 5000
+VERSION = 2 
 BATCH_SIZE = 5
 MODEL = "gpt-5-mini"
 
