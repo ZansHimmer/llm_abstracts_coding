@@ -29,10 +29,10 @@ def build_prompt_with_papers(prompt, papers_text, start_idx=0, end_idx=5):
 
 
 CONCURRENT_REQUESTS = 5
-START = 1050
-END = 5000
+START = 0
+END = 1000
 VERSION = 2 
-BATCH_SIZE = 5
+BATCH_SIZE = 10
 MODEL = "gpt-5-mini"
 
 
@@ -48,7 +48,7 @@ async def run_task(start, end, input, sem):
     try:
         async with sem:
             response = await client.responses.create(
-                model=MODEL, input=input, # temperature=0  # small GPT-4 variant
+                model=MODEL, input=input, # temperature=0
             )
     except Exception as e:
         print(f"❌ request failed for batch {start+1}-{end}: {e}")
@@ -61,14 +61,14 @@ async def run_task(start, end, input, sem):
 
     try:
         with open(
-            f".\\outputs_{VERSION}_{MODEL}\\{start+1}_{end}_coding_output_{VERSION}.txt",
+            f".\\outputs_{VERSION}_{MODEL}_bs-{BATCH_SIZE}\\{start+1}_{end}_coding_output_{VERSION}.txt",
             "w",
             encoding="utf-8",
         ) as f:
             f.write(response.output_text)
 
         with open(
-            f".\\responses_{VERSION}_{MODEL}\\{start+1}_{end}_coding_response_{VERSION}.txt",
+            f".\\responses_{VERSION}_{MODEL}_bs-{BATCH_SIZE}\\{start+1}_{end}_coding_response_{VERSION}.txt",
             "w",
             encoding="utf-8",
         ) as f:
@@ -84,8 +84,8 @@ async def run_task(start, end, input, sem):
 
 
 async def main():
-    os.makedirs(f"outputs_{VERSION}_{MODEL}", exist_ok=True)
-    os.makedirs(f"responses_{VERSION}_{MODEL}", exist_ok=True)
+    os.makedirs(f"outputs_{VERSION}_{MODEL}_bs-{BATCH_SIZE}", exist_ok=True)
+    os.makedirs(f"responses_{VERSION}_{MODEL}_bs-{BATCH_SIZE}", exist_ok=True)
 
     sem = asyncio.Semaphore(CONCURRENT_REQUESTS)
 
