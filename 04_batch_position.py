@@ -9,7 +9,7 @@ df['MesH_ID'] = df['MesH_ID'].astype(str).str.strip()
 
 decisions = []
 
-for f in Path("outputs_2_gpt-5-mini_bs-10").glob("*_coding_output_2.txt"):
+for f in Path("outputs_2_gpt-5-mini_bs-20").glob("*_coding_output_2.txt"):
     tmp = pd.read_csv(
         f,
         header=None,
@@ -34,7 +34,7 @@ merged_df = merged_df.rename(columns={
 
 print(merged_df.head())
 
-output_path = "matched_sheets\\matched_master_sheet_2_gpt-5-mini_bs-10_with_positions.xlsx"
+output_path = "matched_sheets\\matched_master_sheet_2_gpt-5-mini_bs-20_with_positions.xlsx"
 merged_df.to_excel(output_path, index=False)
 
 
@@ -81,6 +81,6 @@ print(results_df)
 report_df = pd.DataFrame(report_rows)
 print(report_df)
 
-with pd.ExcelWriter("evaluations\\evaluation_by_position_2_gpt-5-mini_bs-10.xlsx", engine="openpyxl") as writer:
+with pd.ExcelWriter("evaluations\\evaluation_by_position_2_gpt-5-mini_bs-20.xlsx", engine="openpyxl") as writer:
     results_df.to_excel(writer, sheet_name="Results", index=False)
     report_df.to_excel(writer, sheet_name="Detailed Report", index=False)

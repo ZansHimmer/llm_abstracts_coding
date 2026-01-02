@@ -32,8 +32,8 @@ CONCURRENT_REQUESTS = 5
 START = 0
 END = 1000
 VERSION = 2 
-BATCH_SIZE = 10
-MODEL = "gpt-5-mini"
+BATCH_SIZE = 20
+MODEL = "gpt-4.1-mini"
 
 
 async def run_task(start, end, input, sem):
@@ -48,7 +48,7 @@ async def run_task(start, end, input, sem):
     try:
         async with sem:
             response = await client.responses.create(
-                model=MODEL, input=input, # temperature=0
+                model=MODEL, input=input, temperature=0
             )
     except Exception as e:
         print(f"❌ request failed for batch {start+1}-{end}: {e}")
