@@ -7,7 +7,7 @@ load_dotenv()
 client = AsyncOpenAI(api_key=os.environ.get("UNC"))
 
 # Step 1: Load the prompt
-with open("coding_prompt_2.txt", "r", encoding="utf-8") as f:
+with open("coding_prompt_3.txt", "r", encoding="utf-8") as f:
     prompt_text = f.read().strip()
 
 # Step 2: Load the papers
@@ -28,11 +28,11 @@ def build_prompt_with_papers(prompt, papers_text, start_idx=0, end_idx=5):
     return combined_text
 
 
-CONCURRENT_REQUESTS = 5
+CONCURRENT_REQUESTS = 2
 START = 0
-END = 1000
-VERSION = 2 
-BATCH_SIZE = 20
+END = 100
+VERSION = 3
+BATCH_SIZE = 1
 MODEL = "gpt-4.1-mini"
 
 
