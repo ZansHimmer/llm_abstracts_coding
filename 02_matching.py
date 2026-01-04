@@ -9,15 +9,28 @@ df['MesH_ID'] = df['MesH_ID'].astype(str).str.strip()
 decisions = []
 
 for f in Path("outputs_2_qwen3_8b_bs-1").glob("*.txt"):
-    tmp = pd.read_csv(
-        f,
-        header=None,
-        names=["MesH_ID", "decision"],
-    )
-    tmp['MesH_ID'] = tmp['MesH_ID'].astype(str).str.strip()
-    decisions.append(tmp)
+    try:
+        tmp = pd.read_csv(f, header=None)
 
-decisions_df = pd.concat(decisions, ignore_index=True) 
+        # skip empty files
+        if tmp.shape[1] < 2:
+            continue
+
+        # keep only first two columns
+        tmp = tmp.iloc[:, :2]
+        tmp.columns = ["MesH_ID", "decision"]
+
+        tmp['MesH_ID'] = tmp['MesH_ID'].astype(str).str.strip()
+        decisions.append(tmp)
+
+    except Exception:
+        continue
+
+# only concat if we actually have data
+if decisions:
+    decisions_df = pd.concat(decisions, ignore_index=True)
+else:
+    decisions_df = pd.DataFrame(columns=["MesH_ID", "decision"])
 
 merged_df = df.merge(decisions_df, on="MesH_ID", how="left")
 merged_df = merged_df.rename(columns={"decision": "decision_LLM_2"})
