@@ -1,14 +1,14 @@
 import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-file_path = 'matched_sheets\\matched_master_sheet_3_gpt-4.1-mini_bs-1.xlsx'
+file_path = 'matched_sheets\\matched_master_sheet_3_gpt-5-mini_bs-1.xlsx'
 df = pd.read_excel(file_path)
 
 df['final-decision_include'] = pd.to_numeric(df['final-decision_include'], errors='coerce')
 df['decision_LLM_2'] = pd.to_numeric(df['decision_LLM_2'], errors='coerce')
 df_eval = df.dropna(subset=['final-decision_include', 'decision_LLM_2'])
 
-LLM_INCLUDE_THRESHOLD = 8
+LLM_INCLUDE_THRESHOLD = 2
 
 df_eval['decision_LLM_2'] = (
     df_eval['decision_LLM_2'] >= LLM_INCLUDE_THRESHOLD
