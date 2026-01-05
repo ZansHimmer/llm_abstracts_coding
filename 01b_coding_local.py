@@ -3,15 +3,15 @@ import requests
 import json
 
 # CONFIG
-START = 20
+START = 0
 END = 1000
-VERSION = 4
+VERSION = 5
 BATCH_SIZE = 1
 MODEL = "ministral-3:8b"
 SAFE_MODEL = MODEL.replace(":", "_")
 
 # Load prompt
-with open("coding_prompt_4.txt", "r", encoding="utf-8") as f:
+with open("coding_prompt_5.txt", "r", encoding="utf-8") as f:
     prompt_text = f.read().strip()
 
 # Load papers
