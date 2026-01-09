@@ -4,11 +4,13 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 file_path = 'matched_sheets\\matched_master_sheet_full_6_gpt-5-mini_bs-1.xlsx'
 df = pd.read_excel(file_path)
 
-df['meta_analysis'] = pd.to_numeric(df['meta_analysis'], errors='coerce')
-df['decision_LLM_2'] = pd.to_numeric(df['decision_LLM_2'], errors='coerce')
-df_eval = df.dropna(subset=['meta_analysis', 'decision_LLM_2'])
+CATEGORY = "meta_analysis"
 
-y_true = df_eval['meta_analysis'].astype(int)
+df[CATEGORY] = pd.to_numeric(df[CATEGORY], errors='coerce')
+df['decision_LLM_2'] = pd.to_numeric(df['decision_LLM_2'], errors='coerce')
+df_eval = df.dropna(subset=[CATEGORY, 'decision_LLM_2'])
+
+y_true = df_eval[CATEGORY].astype(int)
 y_pred = df_eval['decision_LLM_2'].astype(int)
 
 accuracy = accuracy_score(y_true, y_pred)
