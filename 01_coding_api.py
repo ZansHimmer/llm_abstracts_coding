@@ -7,7 +7,7 @@ load_dotenv()
 client = AsyncOpenAI(api_key=os.environ.get("UNC"))
 
 # Step 1: Load the prompt
-with open("coding_prompt_2.txt", "r", encoding="utf-8") as f:
+with open("coding_prompt_6_meta-analysis.txt", "r", encoding="utf-8") as f:
     prompt_text = f.read().strip()
 
 # Step 2: Load the papers
@@ -29,10 +29,10 @@ def build_prompt_with_papers(prompt, papers_text, start_idx=0, end_idx=5):
 
 
 CONCURRENT_REQUESTS = 5
-START = 0
-END = 5000
-VERSION = "2c"
-BATCH_SIZE = 5
+START = 100
+END = 1000
+VERSION = 6
+BATCH_SIZE = 1
 MODEL = "gpt-5-mini"
 
 
