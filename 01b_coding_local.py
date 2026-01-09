@@ -3,10 +3,10 @@ import requests
 import json
 
 # CONFIG
-START = 1000
-END = 5000
+START = 50
+END = 500
 VERSION = 2
-BATCH_SIZE = 1
+BATCH_SIZE = 5
 MODEL = "qwen3:8b"
 SAFE_MODEL = MODEL.replace(":", "_")
 

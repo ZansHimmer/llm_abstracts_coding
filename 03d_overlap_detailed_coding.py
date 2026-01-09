@@ -1,10 +1,10 @@
 import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-file_path = 'matched_sheets\\matched_master_sheet_full_6_gpt-5-mini_bs-1.xlsx'
+file_path = 'matched_sheets\\matched_master_sheet_full_7_gpt-5-mini_bs-1.xlsx'
 df = pd.read_excel(file_path)
 
-CATEGORY = "meta_analysis"
+CATEGORY = "meta_analysis.mathematics"
 
 df[CATEGORY] = pd.to_numeric(df[CATEGORY], errors='coerce')
 df['decision_LLM_2'] = pd.to_numeric(df['decision_LLM_2'], errors='coerce')
