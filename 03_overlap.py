@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-file_path = 'matched_sheets\\matched_master_sheet_2_qwen3_8b_bs-1.xlsx'
+file_path = 'matched_sheets\\matched_master_sheet_2b-temp1_gpt-4.1-mini_bs-1.xlsx'
 df = pd.read_excel(file_path)
 
 df['final-decision_include'] = pd.to_numeric(df['final-decision_include'], errors='coerce')

@@ -7,7 +7,7 @@ load_dotenv()
 client = AsyncOpenAI(api_key=os.environ.get("UNC"))
 
 # Step 1: Load the prompt
-with open("coding_prompt_7_meta-analysis_mathematics.txt", "r", encoding="utf-8") as f:
+with open("coding_prompt_2.txt", "r", encoding="utf-8") as f:
     prompt_text = f.read().strip()
 
 # Step 2: Load the papers
@@ -30,10 +30,10 @@ def build_prompt_with_papers(prompt, papers_text, start_idx=0, end_idx=5):
 
 CONCURRENT_REQUESTS = 5
 START = 0
-END = 100
-VERSION = 7
+END = 1000
+VERSION = "2c-temp1"
 BATCH_SIZE = 1
-MODEL = "gpt-5-mini"
+MODEL = "gpt-4.1-mini"
 
 
 async def run_task(start, end, input, sem):
@@ -48,7 +48,7 @@ async def run_task(start, end, input, sem):
     try:
         async with sem:
             response = await client.responses.create(
-                model=MODEL, input=input, #temperature=0
+                model=MODEL, input=input, temperature=1
             )
     except Exception as e:
         print(f"❌ request failed for batch {start+1}-{end}: {e}")
