@@ -28,3 +28,6 @@ report = classification_report(y_true, y_pred, digits=4)
 print('Classification Report:')
 print(report)
 
+kappa = cohen_kappa_score(y_true, y_pred)
+print(f"Cohen's Kappa: {kappa:.4f}")
+

@@ -1,12 +1,13 @@
 import pandas as pd
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score
 
-file_path = 'matched_sheets\\matched_master_sheet_2b-temp1_gpt-4.1-mini_bs-1.xlsx'
+file_path = 'matched_sheets\\matched_master_sheet_2_qwen3_8b_bs-5.xlsx'
 df = pd.read_excel(file_path)
 
 df['final-decision_include'] = pd.to_numeric(df['final-decision_include'], errors='coerce')
 df['decision_LLM_2'] = pd.to_numeric(df['decision_LLM_2'], errors='coerce')
 df_eval = df.dropna(subset=['final-decision_include', 'decision_LLM_2'])
+#df_eval = df_eval[:1000]
 
 y_true = df_eval['final-decision_include'].astype(int)
 y_pred = df_eval['decision_LLM_2'].astype(int)
@@ -21,3 +22,6 @@ print(cm)
 report = classification_report(y_true, y_pred, digits=4)
 print('Classification Report:')
 print(report)
+
+kappa = cohen_kappa_score(y_true, y_pred)
+print(f"Cohen's Kappa: {kappa:.4f}")

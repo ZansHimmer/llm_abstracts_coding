@@ -2,8 +2,8 @@ import re
 from pathlib import Path
 import pandas as pd
 
-BATCH_SIZE = 5
-MODEL_NAME = "gpt-5-mini"
+BATCH_SIZE = 20
+MODEL_NAME = "gpt-4.1-mini"
 
 TXT_DIR = Path(f"responses_2_{MODEL_NAME}_bs-{BATCH_SIZE}")
 OUTPUT_DIR = Path("cost_duration")

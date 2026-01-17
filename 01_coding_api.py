@@ -29,11 +29,11 @@ def build_prompt_with_papers(prompt, papers_text, start_idx=0, end_idx=5):
 
 
 CONCURRENT_REQUESTS = 5
-START = 0
-END = 1000
-VERSION = "2c-temp1"
+START = 1000
+END = 5000
+VERSION = 2
 BATCH_SIZE = 1
-MODEL = "gpt-4.1-mini"
+MODEL = "gpt-5-mini"
 
 
 async def run_task(start, end, input, sem):
@@ -48,7 +48,7 @@ async def run_task(start, end, input, sem):
     try:
         async with sem:
             response = await client.responses.create(
-                model=MODEL, input=input, temperature=1
+                model=MODEL, input=input, #temperature=0
             )
     except Exception as e:
         print(f"❌ request failed for batch {start+1}-{end}: {e}")
