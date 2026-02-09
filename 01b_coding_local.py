@@ -3,10 +3,10 @@ import requests
 import json
 
 # CONFIG
-START = 50
-END = 500
-VERSION = 2
-BATCH_SIZE = 5
+START = 0
+END = 1000
+VERSION = "2-temp1"
+BATCH_SIZE = 1
 MODEL = "qwen3:8b"
 SAFE_MODEL = MODEL.replace(":", "_")
 
@@ -33,7 +33,7 @@ def call_ollama(prompt):
             "prompt": prompt,
             "stream": False,
             "options": {
-            "temperature": 0.0
+            "temperature": 1.0
             }
         },
         timeout=600,

@@ -8,7 +8,7 @@ df['MesH_ID'] = df['MesH_ID'].astype(str).str.strip()
 
 decisions = []
 
-for f in Path("outputs_2_gpt-4.1-mini_bs-1").glob("*.txt"):
+for f in Path("outputs_2_gpt-4.1-mini_bs-100").glob("*.txt"):
     try:
         tmp = pd.read_csv(f, header=None)
 
@@ -37,5 +37,5 @@ merged_df = merged_df.rename(columns={"decision": "decision_LLM_2"})
 
 print(merged_df.head())
 
-output_path = "matched_sheets\\matched_master_sheet_2_gpt-4.1-mini_bs-1.xlsx"
+output_path = "matched_sheets\\matched_master_sheet_2_gpt-4.1-mini_bs-100.xlsx"
 merged_df.to_excel(output_path, index=False)

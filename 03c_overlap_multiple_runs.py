@@ -1,9 +1,9 @@
 import pandas as pd
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score
 
-FILE_1_PATH = 'matched_sheets\\matched_master_sheet_2_gpt-5-mini_bs-5.xlsx'
-FILE_2_PATH = 'matched_sheets\\matched_master_sheet_2b_gpt-5-mini_bs-5.xlsx'
-FILE_3_PATH = 'matched_sheets\\matched_master_sheet_2c_gpt-5-mini_bs-5.xlsx'
+FILE_1_PATH = 'matched_sheets\\matched_master_sheet_2-temp1_gpt-4.1-mini_bs-1.xlsx'
+FILE_2_PATH = 'matched_sheets\\matched_master_sheet_2b-temp1_gpt-4.1-mini_bs-1.xlsx'
+FILE_3_PATH = 'matched_sheets\\matched_master_sheet_2c-temp1_gpt-4.1-mini_bs-1.xlsx'
 
 files = [FILE_1_PATH, FILE_2_PATH, FILE_3_PATH]
 decision_cols = ['decision_LLM_1', 'decision_LLM_2', 'decision_LLM_3']
@@ -57,3 +57,10 @@ print('Classification Report (any 1):')
 print(report_any)
 print('Classification Report (majority 1):')
 print(report_majority)
+
+kappa_all = cohen_kappa_score(y_true, y_pred_all)
+kappa_any = cohen_kappa_score(y_true, y_pred_any)
+kappa_majority = cohen_kappa_score(y_true, y_pred_majority)
+print(f"Cohen's Kappa (all 1): {kappa_all:.4f}")
+print(f"Cohen's Kappa (any 1): {kappa_any:.4f}")
+print(f"Cohen's Kappa (majority 1): {kappa_majority:.4f}")

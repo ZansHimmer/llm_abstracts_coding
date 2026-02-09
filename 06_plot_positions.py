@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 positions = [1, 2, 3, 4, 5]
 
 # example metric values (replace with yours)
-accuracy  = [0.91, 0.91, 0.91, 0.91, 0.91]
-recall    = [0.94, 0.96, 0.95, 0.93, 0.93]
-precision = [0.80, 0.82, 0.79, 0.82, 0.79]
+accuracy  = [0.90, 0.88, 0.88, 0.86, 0.87]
+recall    = [0.90, 0.91, 0.90, 0.89, 0.90]
+precision = [0.81, 0.77, 0.75, 0.73, 0.72]
 
 fig = plt.gcf()
 ax = plt.gca()

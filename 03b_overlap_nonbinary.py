@@ -1,14 +1,34 @@
 import pandas as pd
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score
 
 file_path = 'matched_sheets\\matched_master_sheet_3_gpt-5-mini_bs-1.xlsx'
 df = pd.read_excel(file_path)
 
 df['final-decision_include'] = pd.to_numeric(df['final-decision_include'], errors='coerce')
 df['decision_LLM_2'] = pd.to_numeric(df['decision_LLM_2'], errors='coerce')
-df_eval = df.dropna(subset=['final-decision_include', 'decision_LLM_2'])
+df_eval = df.dropna(
+    subset=['final-decision_include', 'decision_LLM_2']
+).copy()
 
-LLM_INCLUDE_THRESHOLD = 2
+
+
+def print_value_frequencies(df, column_name, dropna=True):
+    """
+    Prints absolute and relative frequencies of values in a column.
+    """
+    counts = df[column_name].value_counts(dropna=not dropna).sort_index()
+    freqs = counts / counts.sum()
+
+    freq_df = pd.DataFrame({
+        "count": counts,
+        "proportion": freqs
+    })
+
+    print(f"\nValue frequencies for column '{column_name}':")
+    print(freq_df)
+print_value_frequencies(df_eval, 'decision_LLM_2')
+
+LLM_INCLUDE_THRESHOLD = 9
 
 df_eval['decision_LLM_2'] = (
     df_eval['decision_LLM_2'] >= LLM_INCLUDE_THRESHOLD

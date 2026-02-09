@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, cohen_kappa_score, confusion_matrix, classification_report
 
 file_path = 'matched_sheets\\matched_master_sheet_full_9_gpt-5-mini_bs-1.xlsx'
 df = pd.read_excel(file_path)
@@ -23,3 +23,6 @@ print(cm)
 report = classification_report(y_true, y_pred, digits=4)
 print('Classification Report:')
 print(report)
+
+kappa = cohen_kappa_score(y_true, y_pred)
+print(f"Cohen's Kappa: {kappa:.4f}")
