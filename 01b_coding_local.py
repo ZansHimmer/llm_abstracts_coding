@@ -2,6 +2,8 @@ import os
 import requests
 import json
 
+# version 04/03/2026
+
 # CONFIG
 START = 0
 END = 1000

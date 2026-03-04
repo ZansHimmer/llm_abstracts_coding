@@ -1,7 +1,9 @@
 import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score
 
-file_path = 'matched_sheets\\matched_master_sheet_3_gpt-5-mini_bs-1.xlsx'
+# version 04/03/2026
+
+file_path = 'matched_sheets\\matched_master_sheet_3_gpt-4.1-mini_bs-1.xlsx'
 df = pd.read_excel(file_path)
 
 df['final-decision_include'] = pd.to_numeric(df['final-decision_include'], errors='coerce')

@@ -2,12 +2,15 @@ import re
 from pathlib import Path
 import pandas as pd
 
-BATCH_SIZE = 5
-MODEL_NAME = "gpt-4.1-mini"
+# version 04/03/2026
 
-TXT_DIR = Path(f"responses_2_{MODEL_NAME}_bs-{BATCH_SIZE}")
+BATCH_SIZE = 100
+MODEL_NAME = "gpt-5-mini"
+VERSION = "2-high-reasoning"
+
+TXT_DIR = Path(f"responses_{VERSION}_{MODEL_NAME}_bs-{BATCH_SIZE}")
 OUTPUT_DIR = Path("cost_duration")
-OUTPUT_FILE = OUTPUT_DIR / f"cost_duration_2_{MODEL_NAME}_bs-{BATCH_SIZE}.xlsx"
+OUTPUT_FILE = OUTPUT_DIR / f"cost_duration_{VERSION}_{MODEL_NAME}_bs-{BATCH_SIZE}.xlsx"
 
 PRICING_FILE = "preise_modelle_LLM.xlsx"
 

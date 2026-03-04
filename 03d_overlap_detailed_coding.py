@@ -1,7 +1,9 @@
 import pandas as pd
 from sklearn.metrics import accuracy_score, cohen_kappa_score, confusion_matrix, classification_report
 
-file_path = 'matched_sheets\\matched_master_sheet_full_9_gpt-5-mini_bs-1.xlsx'
+# version 04/03/2026
+
+file_path = 'matched_sheets\\matched_master_sheet_full_9-minimal -reasoning_gpt-5-mini_bs-1.xlsx'
 df = pd.read_excel(file_path)
 
 CATEGORY = "parents"

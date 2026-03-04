@@ -2,6 +2,8 @@ import re
 from pathlib import Path
 import pandas as pd
 
+# version 04/03/2026
+
 BATCH_SIZE = 1
 MODEL_NAME = "qwen3:8b"
 SAFE_MODEL = MODEL_NAME.replace(":", "_")

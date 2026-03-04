@@ -1,6 +1,8 @@
 import pandas as pd
 from pathlib import Path
 
+# version 04/03/2026
+
 file_path = 'master-sheet-full.xlsx'
 
 df = pd.read_excel(file_path)
@@ -8,7 +10,7 @@ df['MesH_ID'] = df['MesH_ID'].astype(str).str.strip()
 
 decisions = []
 
-for f in Path("outputs_8_gpt-5-mini_bs-1").glob("*.txt"):
+for f in Path("outputs_8-minimal-reasoning_gpt-5-mini_bs-1").glob("*.txt"):
     try:
         tmp = pd.read_csv(f, header=None)
 
@@ -37,5 +39,5 @@ merged_df = merged_df.rename(columns={"decision": "decision_LLM_2"})
 
 print(merged_df.head())
 
-output_path = "matched_sheets\\matched_master_sheet_full_8_gpt-5-mini_bs-1.xlsx"
+output_path = "matched_sheets\\matched_master_sheet_full_8-minimal-reasoning_gpt-5-mini_bs-1.xlsx"
 merged_df.to_excel(output_path, index=False)

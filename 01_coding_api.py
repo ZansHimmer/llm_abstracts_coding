@@ -3,6 +3,8 @@ import os
 from openai import AsyncOpenAI
 import asyncio
 
+# version 04/03/2026
+
 load_dotenv()
 client = AsyncOpenAI(api_key=os.environ.get("UNC"))
 
@@ -28,12 +30,12 @@ def build_prompt_with_papers(prompt, papers_text, start_idx=0, end_idx=5):
     return combined_text
 
 
-CONCURRENT_REQUESTS = 1
-START = 600
-END = 700
-VERSION = 2
-BATCH_SIZE = 100
-MODEL = "gpt-4.1-mini"
+CONCURRENT_REQUESTS = 100
+START = 0
+END = 5000
+VERSION = "2-high-reasoning"
+BATCH_SIZE = 10
+MODEL = "gpt-5-mini"
 
 
 async def run_task(start, end, input, sem):
@@ -48,7 +50,7 @@ async def run_task(start, end, input, sem):
     try:
         async with sem:
             response = await client.responses.create(
-                model=MODEL, input=input, temperature=0
+                model=MODEL, input=input, reasoning={"effort": "high"} #, temperature=0
             )
     except Exception as e:
         print(f"❌ request failed for batch {start+1}-{end}: {e}")
