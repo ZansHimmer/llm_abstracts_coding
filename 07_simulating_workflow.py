@@ -4,16 +4,16 @@ from pathlib import Path
 
 # --- CONFIG ---
 ID_COL = "MesH_ID"
-FINAL_HUMAN_COL = "final-decision_include"
+FINAL_HUMAN_COL = "meta_analysis"
 LLM_DECISION_COL = "decision_LLM_2"
 
-OUTPUT_DIR = Path("subsample_screening_performance")
+OUTPUT_DIR = Path(r"subsample_screening_performance\gpt-5-mini_bs-1_meta")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Start with one matched sheet.
 # Later, add more sheets here.
 MATCHED_SHEETS = {
-    "run_1": r"matched_sheets\matched_master_sheet_2_gpt-4.1-mini_bs-1.xlsx",
+    "run_1": r"matched_sheets\matched_master_sheet_full_6_gpt-5-mini_bs-1.xlsx",
     # "run_2": r"matched_sheets\another_matched_sheet.xlsx",
     # "run_3": r"matched_sheets\another_matched_sheet.xlsx",
 }
@@ -25,8 +25,8 @@ N_DRAWS = 1000
 RANDOM_SEED = 123
 
 # If True, each subsample preserves the human include/exclude distribution.
-# Recommended if included records are relatively rare.
-STRATIFY_BY_HUMAN_LABEL = True
+# False is recommended for testing the propsed workflow
+STRATIFY_BY_HUMAN_LABEL = False
 
 
 # --- HELPERS ---
