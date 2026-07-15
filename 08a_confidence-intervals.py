@@ -5,16 +5,17 @@ from statistics import NormalDist
 
 # --- CONFIG ---
 ID_COL = "MesH_ID"
-FINAL_HUMAN_COL = "meta_analysis.mathematics.tech"
+FINAL_HUMAN_COL = "final-decision_include"
 LLM_DECISION_COL = "decision_LLM_2"
 
-OUTPUT_DIR = Path(r"screening_metrics_with_CI\gpt-5-mini_bs-1_meta-analysis-tech")
+OUTPUT_DIR = Path(r"screening_metrics_with_CI\gpt-4.1-mini_temp_comparison")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 MATCHED_SHEETS = {
-    "run_1": r"matched_sheets\matched_master_sheet_full_8_gpt-5-mini_bs-1.xlsx",
-    # "run_2": r"matched_sheets\another_matched_sheet.xlsx",
-    # "run_3": r"matched_sheets\another_matched_sheet.xlsx",
+    "run_1_temp0": r"matched_sheets\matched_master_sheet_2_gpt-4.1-mini_bs-1.xlsx",
+    "run_2_temp1": r"matched_sheets\matched_master_sheet_2-temp1_gpt-4.1-mini_bs-1.xlsx",
+    "run_2b_temp1": r"matched_sheets\matched_master_sheet_2b-temp1_gpt-4.1-mini_bs-1.xlsx",
+    "run_2c_temp1": r"matched_sheets\matched_master_sheet_2c-temp1_gpt-4.1-mini_bs-1.xlsx",
 }
 
 CONFIDENCE = 0.95
@@ -146,8 +147,7 @@ def read_matched_sheet(file_path):
     )
 
     if df[ID_COL].duplicated().any():
-        duplicated_ids = df.loc[df[ID_COL].duplicated(), ID_COL].tolist()
-        raise ValueError(f"Duplicate {ID_COL}s found: {duplicated_ids[:10]}")
+        df = df.drop_duplicates(subset=[ID_COL], keep="last").copy()
 
     df[FINAL_HUMAN_COL] = pd.to_numeric(df[FINAL_HUMAN_COL], errors="coerce")
     df[LLM_DECISION_COL] = pd.to_numeric(df[LLM_DECISION_COL], errors="coerce")

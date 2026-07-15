@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from statistics import NormalDist
 
 # --- CONFIG ---
 ID_COL = "MesH_ID"
@@ -20,7 +21,7 @@ RUNS = {
     "run_1": r"matched_sheets\matched_master_sheet_2b-temp1_gpt-4.1-mini_bs-1.xlsx",
     "run_2": r"matched_sheets\matched_master_sheet_2c-temp1_gpt-4.1-mini_bs-1.xlsx",
     "run_3": r"matched_sheets\matched_master_sheet_2-temp1_gpt-4.1-mini_bs-1.xlsx",
-    # "run_4": r"matched_sheets\matched_master_sheet_2_gpt-4.1-mini_bs-1.xlsx",
+    # "run_4": r"matched_sheets\matched_master_sheet_2_gpt-4.1-mini_bs-1_temp1.xlsx",
 }
 
 
@@ -29,6 +30,94 @@ def safe_divide(numerator, denominator):
     if denominator == 0:
         return np.nan
     return numerator / denominator
+
+
+def risk_ratio_ci(a, b, c, d, confidence=0.95):
+    """
+    Risk ratio CI for a 2x2 table.
+
+    Table layout:
+        a = human disagreement + changed across runs
+        b = human disagreement + stable across runs
+        c = no human disagreement + changed across runs
+        d = no human disagreement + stable across runs
+
+    Risk ratio:
+        [a / (a + b)] / [c / (c + d)]
+
+    CI:
+        Wald interval on log risk ratio scale.
+
+    A 0.5 continuity correction is applied only if a or c is zero.
+    """
+    a_raw, b_raw, c_raw, d_raw = a, b, c, d
+
+    exposed_total = a_raw + b_raw
+    unexposed_total = c_raw + d_raw
+
+    if exposed_total == 0 or unexposed_total == 0:
+        return {
+            "risk_ratio_ci_lower": np.nan,
+            "risk_ratio_ci_upper": np.nan,
+            "risk_ratio_ci_method": "log risk ratio Wald CI",
+            "risk_ratio_0_5_correction_applied": False,
+        }
+
+    correction_applied = (a_raw == 0) or (c_raw == 0)
+
+    if correction_applied:
+        a = a_raw + 0.5
+        b = b_raw + 0.5
+        c = c_raw + 0.5
+        d = d_raw + 0.5
+    else:
+        a = a_raw
+        b = b_raw
+        c = c_raw
+        d = d_raw
+
+    risk_exposed = a / (a + b)
+    risk_unexposed = c / (c + d)
+
+    if risk_unexposed == 0:
+        return {
+            "risk_ratio_ci_lower": np.nan,
+            "risk_ratio_ci_upper": np.nan,
+            "risk_ratio_ci_method": "log risk ratio Wald CI",
+            "risk_ratio_0_5_correction_applied": correction_applied,
+        }
+
+    rr = risk_exposed / risk_unexposed
+
+    if rr <= 0:
+        return {
+            "risk_ratio_ci_lower": np.nan,
+            "risk_ratio_ci_upper": np.nan,
+            "risk_ratio_ci_method": "log risk ratio Wald CI",
+            "risk_ratio_0_5_correction_applied": correction_applied,
+        }
+
+    se_log_rr = np.sqrt(
+        (1 / a)
+        - (1 / (a + b))
+        + (1 / c)
+        - (1 / (c + d))
+    )
+
+    alpha = 1 - confidence
+    z_crit = NormalDist().inv_cdf(1 - alpha / 2)
+
+    log_rr = np.log(rr)
+
+    ci_lower = np.exp(log_rr - z_crit * se_log_rr)
+    ci_upper = np.exp(log_rr + z_crit * se_log_rr)
+
+    return {
+        "risk_ratio_ci_lower": ci_lower,
+        "risk_ratio_ci_upper": ci_upper,
+        "risk_ratio_ci_method": "log risk ratio Wald CI",
+        "risk_ratio_0_5_correction_applied": correction_applied,
+    }
 
 
 def read_human_decisions():
@@ -228,12 +317,25 @@ change_rate_disagreement = disagreement[
 risk_difference = change_rate_disagreement - change_rate_no_disagreement
 risk_ratio = safe_divide(change_rate_disagreement, change_rate_no_disagreement)
 
-# Odds ratio with 0.5 correction
+# Counts for risk ratio / odds ratio:
+# a = human disagreement + changed across runs
+# b = human disagreement + stable across runs
+# c = no human disagreement + changed across runs
+# d = no human disagreement + stable across runs
 a = contingency.loc["human_disagreement", "changed_across_runs"]
 b = contingency.loc["human_disagreement", "stable_across_runs"]
 c = contingency.loc["no_human_disagreement", "changed_across_runs"]
 d = contingency.loc["no_human_disagreement", "stable_across_runs"]
 
+rr_ci = risk_ratio_ci(
+    a=a,
+    b=b,
+    c=c,
+    d=d,
+    confidence=0.95
+)
+
+# Odds ratio with 0.5 correction
 odds_ratio = ((a + 0.5) * (d + 0.5)) / ((b + 0.5) * (c + 0.5))
 
 effect_summary = pd.DataFrame([{
@@ -248,6 +350,10 @@ effect_summary = pd.DataFrame([{
     "proportion_changed_no_human_disagreement": change_rate_no_disagreement,
     "risk_difference": risk_difference,
     "risk_ratio": risk_ratio,
+    "risk_ratio_ci_lower": rr_ci["risk_ratio_ci_lower"],
+    "risk_ratio_ci_upper": rr_ci["risk_ratio_ci_upper"],
+    "risk_ratio_ci_method": rr_ci["risk_ratio_ci_method"],
+    "risk_ratio_0_5_correction_applied": rr_ci["risk_ratio_0_5_correction_applied"],
     "odds_ratio_with_0_5_correction": odds_ratio,
 }])
 

@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from statistics import NormalDist
 
 # --- CONFIG ---
 ID_COL = "MesH_ID"
@@ -13,15 +14,20 @@ HUMAN_COL_2 = "inclusion_2"
 FINAL_HUMAN_COL = "final-decision_include"
 LLM_DECISION_COL = "decision_LLM_2"
 
-OUTPUT_DIR = Path(r"human-disagreement_LLM-errors\gpt-5-mini_bs-5")
-OUTPUT_DIR.mkdir(exist_ok=True)
+OUTPUT_DIR = Path(r"human-disagreement_LLM-errors\multiple_runs")
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Start with one matched sheet.
 # Later, you can add more runs here.
 MATCHED_SHEETS = {
-    "run_1": r"matched_sheets\matched_master_sheet_2_gpt-5-mini_bs-5.xlsx",
-    # "run_2": r"matched_sheets\another_matched_sheet.xlsx",
-    # "run_3": r"matched_sheets\another_matched_sheet.xlsx",
+    "run_5_med": r"matched_sheets\matched_master_sheet_2_gpt-5-mini_bs-1.xlsx",
+    "run_5_min": r"matched_sheets\matched_master_sheet_2-minimal-reasoning_gpt-5-mini_bs-1.xlsx",
+    "run_5_low": r"matched_sheets\matched_master_sheet_2-low-reasoning_gpt-5-mini_bs-1.xlsx",
+    "run_5_high": r"matched_sheets\matched_master_sheet_2-high-reasoning_gpt-5-mini_bs-1.xlsx",
+    "run_4.1_temp1": r"matched_sheets\matched_master_sheet_2-temp1_gpt-4.1-mini_bs-1.xlsx",
+    "run_4.1_temp0": r"matched_sheets\matched_master_sheet_2_gpt-4.1-mini_bs-1.xlsx",
+    "run_qw3_temp1": r"matched_sheets\matched_master_sheet_2-temp1_qwen3_8b_bs-1.xlsx",
+    "run_qw3_temp0": r"matched_sheets\matched_master_sheet_2_qwen3_8b_bs-1.xlsx",
 }
 
 
@@ -30,6 +36,103 @@ def safe_divide(numerator, denominator):
     if denominator == 0:
         return np.nan
     return numerator / denominator
+
+
+def risk_ratio_ci_and_p_value(a, b, c, d, confidence=0.95):
+    """
+    Risk ratio, CI, and p-value for a 2x2 table.
+
+    Table layout:
+        a = human disagreement + LLM error
+        b = human disagreement + no LLM error
+        c = no human disagreement + LLM error
+        d = no human disagreement + no LLM error
+
+    Risk ratio:
+        [a / (a + b)] / [c / (c + d)]
+
+    CI:
+        Wald interval on log risk ratio scale.
+
+    A 0.5 continuity correction is applied only if a or c is zero.
+    If one exposure group has zero total records, RR is undefined.
+    """
+    a_raw, b_raw, c_raw, d_raw = a, b, c, d
+
+    exposed_total = a_raw + b_raw
+    unexposed_total = c_raw + d_raw
+
+    if exposed_total == 0 or unexposed_total == 0:
+        return {
+            "risk_ratio_ci_lower": np.nan,
+            "risk_ratio_ci_upper": np.nan,
+            "risk_ratio_p_value": np.nan,
+            "risk_ratio_ci_method": "log risk ratio Wald CI",
+            "risk_ratio_0_5_correction_applied": False,
+        }
+
+    correction_applied = (a_raw == 0) or (c_raw == 0)
+
+    if correction_applied:
+        a = a_raw + 0.5
+        b = b_raw + 0.5
+        c = c_raw + 0.5
+        d = d_raw + 0.5
+    else:
+        a = a_raw
+        b = b_raw
+        c = c_raw
+        d = d_raw
+
+    risk_exposed = a / (a + b)
+    risk_unexposed = c / (c + d)
+
+    if risk_unexposed == 0:
+        return {
+            "risk_ratio_ci_lower": np.nan,
+            "risk_ratio_ci_upper": np.nan,
+            "risk_ratio_p_value": np.nan,
+            "risk_ratio_ci_method": "log risk ratio Wald CI",
+            "risk_ratio_0_5_correction_applied": correction_applied,
+        }
+
+    rr = risk_exposed / risk_unexposed
+
+    if rr <= 0:
+        return {
+            "risk_ratio_ci_lower": np.nan,
+            "risk_ratio_ci_upper": np.nan,
+            "risk_ratio_p_value": np.nan,
+            "risk_ratio_ci_method": "log risk ratio Wald CI",
+            "risk_ratio_0_5_correction_applied": correction_applied,
+        }
+
+    se_log_rr = np.sqrt(
+        (1 / a)
+        - (1 / (a + b))
+        + (1 / c)
+        - (1 / (c + d))
+    )
+
+    alpha = 1 - confidence
+    z_crit = NormalDist().inv_cdf(1 - alpha / 2)
+
+    log_rr = np.log(rr)
+
+    ci_lower = np.exp(log_rr - z_crit * se_log_rr)
+    ci_upper = np.exp(log_rr + z_crit * se_log_rr)
+
+    z_stat = log_rr / se_log_rr
+    p_value = 2 * (1 - NormalDist().cdf(abs(z_stat)))
+    p_value = min(1, p_value)
+
+    return {
+        "risk_ratio_ci_lower": ci_lower,
+        "risk_ratio_ci_upper": ci_upper,
+        "risk_ratio_p_value": p_value,
+        "risk_ratio_ci_method": "log risk ratio Wald CI",
+        "risk_ratio_0_5_correction_applied": correction_applied,
+    }
 
 
 def read_human_decisions():
@@ -261,12 +364,25 @@ def analyze_matched_sheet(run_name, matched_sheet_path, human_df):
     risk_difference = error_rate_disagreement - error_rate_no_disagreement
     risk_ratio = safe_divide(error_rate_disagreement, error_rate_no_disagreement)
 
-    # Odds ratio with small correction to avoid division-by-zero problems
+    # Counts for risk ratio / odds ratio:
+    # a = human disagreement + LLM error
+    # b = human disagreement + no LLM error
+    # c = no human disagreement + LLM error
+    # d = no human disagreement + no LLM error
     a = contingency.loc["human_disagreement", "llm_error"]
     b = contingency.loc["human_disagreement", "llm_correct"]
     c = contingency.loc["no_human_disagreement", "llm_error"]
     d = contingency.loc["no_human_disagreement", "llm_correct"]
 
+    rr_ci_p = risk_ratio_ci_and_p_value(
+        a=a,
+        b=b,
+        c=c,
+        d=d,
+        confidence=0.95
+    )
+
+    # Odds ratio with small correction to avoid division-by-zero problems
     odds_ratio = ((a + 0.5) * (d + 0.5)) / ((b + 0.5) * (c + 0.5))
 
     effect_summary = pd.DataFrame([{
@@ -279,6 +395,11 @@ def analyze_matched_sheet(run_name, matched_sheet_path, human_df):
         "llm_error_rate_no_human_disagreement": error_rate_no_disagreement,
         "risk_difference": risk_difference,
         "risk_ratio": risk_ratio,
+        "risk_ratio_ci_lower": rr_ci_p["risk_ratio_ci_lower"],
+        "risk_ratio_ci_upper": rr_ci_p["risk_ratio_ci_upper"],
+        "risk_ratio_p_value": rr_ci_p["risk_ratio_p_value"],
+        "risk_ratio_ci_method": rr_ci_p["risk_ratio_ci_method"],
+        "risk_ratio_0_5_correction_applied": rr_ci_p["risk_ratio_0_5_correction_applied"],
         "odds_ratio_with_0_5_correction": odds_ratio,
     }])
 
