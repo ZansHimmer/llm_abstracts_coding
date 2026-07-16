@@ -30,8 +30,8 @@
 ## Analysis Scripts
 
 ### LLM Screening
-- *01_coding_api.py* -- main screening script that uses the prompt and the original papers to conduct the LLM screening with OpenAI Models. Here, all settings can be adjusted. An OpenAI API Key is needed for this script to work
-- *01b_coding_local.py* -- screening script for the local models via Ollama. All ettings can be adjusted here. 
+- *01_coding_api.py* -- main screening script that uses the prompt and the original papers to conduct the LLM screening with OpenAI Models. Here, all settings can be adjusted. An OpenAI API Key is needed for this script to work.
+- *01b_coding_local.py* -- screening script for the local models via Ollama. All settings can be adjusted here. 
 
 ### Matching
 - *02_matching.py* -- script that matches the screening outputs with the human screening decisions for the baseline data.
@@ -45,6 +45,10 @@
 - *03e_record-level_variability.py* -- Multiple matched-sheets can be input, script calculates the different outcomes regarding record-level variability within the manuscript. 
 - *03f_human-disagreement_LLM-errors.py* -- Uses the matched sheets and the human screening sheet with both screeners decisions to estimate whether LLM errors were more likely to occur in records with human disagreements in their decisions. 
 - *03g_record-variability_human-disagreement.py* -- combines the ideas from the previous 2 analyses to investigate whether LLM screening decisions were more variable for records with human screening disagreements. 
+
+### Simulation
 - *07_simulating_workflow.py* -- Based on a matched-sheet / multiple matched-sheets, draws of subsamples of this data and how these drawn samples generalize to the full data are estimated. Sample proportions can be specified in the script, as well as the number of draws to estimate uncertanties for the effects. 
+
+### Confidence Intervals
 - *08_confidence-intervals.py* -- takes matched-sheets as the input and calculates Wilson score intervals for Accuracy, precision, and recall. Bootstrapped intervals are calculated for Cohen's kappa.
-- *08b_confidence-comparisons.py* -- for each matched-sheet included in the script, pairwise comparisons between all metrics are bootstrapped that allow for comparisons between models and settings or differnt runs by the same model. 
+- *08b_confidence-comparisons.py* -- for each matched-sheet included in the script, pairwise comparisons between all metrics are bootstrapped that allow for comparisons between models and settings or different runs by the same model. 
