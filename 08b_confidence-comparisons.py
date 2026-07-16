@@ -8,14 +8,15 @@ ID_COL = "MesH_ID"
 FINAL_HUMAN_COL = "final-decision_include"
 LLM_DECISION_COL = "decision_LLM_2"
 
-OUTPUT_DIR = Path("paired_bootstrap_all_pairwise_comparisons/gpt-4.1-temperatures")
+OUTPUT_DIR = Path("paired_bootstrap_all_pairwise_comparisons/reasoning_batch_comparisons_medium")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 MATCHED_SHEETS = {
-    "gpt-4.1-mini_bs-1_temp0": r"matched_sheets\matched_master_sheet_2_gpt-4.1-mini_bs-1.xlsx",
-    "gpt-4.1-mini_bs-1_temp1a": r"matched_sheets\matched_master_sheet_2-temp1_gpt-4.1-mini_bs-1.xlsx",
-    "gpt-4.1-mini_bs-1_temp1b": r"matched_sheets\matched_master_sheet_2b-temp1_gpt-4.1-mini_bs-1.xlsx",
-    "gpt-4.1-mini_bs-1_temp1c": r"matched_sheets\matched_master_sheet_2c-temp1_gpt-4.1-mini_bs-1.xlsx",
+    "gpt-5-mini_medium-reasoning_bs-1": r"matched_sheets\matched_master_sheet_2_gpt-5-mini_bs-1.xlsx",
+    "gpt-5-mini_medium-reasoning_bs-5": r"matched_sheets\matched_master_sheet_2_gpt-5-mini_bs-5.xlsx",
+    "gpt-5-mini_medium-reasoning_bs-10": r"matched_sheets\matched_master_sheet_2_gpt-5-mini_bs-10.xlsx",
+    "gpt-5-mini_medium-reasoning_bs-20": r"matched_sheets\matched_master_sheet_2_gpt-5-mini_bs-20.xlsx",
+    "gpt-5-mini_medium-reasoning_bs-100": r"matched_sheets\matched_master_sheet_2_gpt-5-mini_bs-100.xlsx",
 }
 
 CONFIDENCE = 0.95
@@ -196,6 +197,33 @@ def prepare_pair_data(run_a, run_b, run_dfs):
     return df_eval, df_excluded
 
 
+def empirical_two_sided_bootstrap_p_value(diffs):
+    """
+    Two-sided empirical paired-bootstrap p-value for H0: difference = 0.
+
+    The p-value is calculated as:
+        2 * min(P(bootstrap difference <= 0), P(bootstrap difference >= 0))
+
+    A +1 finite-bootstrap correction is used so the p-value is never exactly 0.
+    """
+    diffs = np.asarray(diffs)
+
+    if len(diffs) == 0:
+        return np.nan
+
+    n_valid = len(diffs)
+
+    n_less_or_equal_zero = int((diffs <= 0).sum())
+    n_greater_or_equal_zero = int((diffs >= 0).sum())
+
+    lower_tail_probability = (n_less_or_equal_zero + 1) / (n_valid + 1)
+    upper_tail_probability = (n_greater_or_equal_zero + 1) / (n_valid + 1)
+
+    p_value = 2 * min(lower_tail_probability, upper_tail_probability)
+
+    return min(1.0, p_value)
+
+
 def bootstrap_pairwise_difference(run_a, run_b, df_pair, rng):
     y_true = df_pair["human_final"].to_numpy()
     y_pred_a = df_pair["pred_a"].to_numpy()
@@ -261,11 +289,14 @@ def bootstrap_pairwise_difference(run_a, run_b, df_pair, rng):
             ci_upper = np.percentile(diffs, 100 * (1 - alpha / 2))
             bootstrap_mean_diff = np.mean(diffs)
             bootstrap_sd_diff = np.std(diffs, ddof=1)
+
+            p_value_two_sided = empirical_two_sided_bootstrap_p_value(diffs)
         else:
             ci_lower = np.nan
             ci_upper = np.nan
             bootstrap_mean_diff = np.nan
             bootstrap_sd_diff = np.nan
+            p_value_two_sided = np.nan
 
         rows.append({
             "run_a": run_a,
@@ -278,6 +309,8 @@ def bootstrap_pairwise_difference(run_a, run_b, df_pair, rng):
             "bootstrap_sd_difference": bootstrap_sd_diff,
             "ci_lower": ci_lower,
             "ci_upper": ci_upper,
+            "p_value_two_sided": p_value_two_sided,
+            "p_value_method": "two-sided empirical paired-bootstrap tail probability",
             "ci_method": "paired record-level nonparametric bootstrap percentile interval",
             "confidence": CONFIDENCE,
             "n_bootstrap": N_BOOTSTRAP,

@@ -21,7 +21,6 @@ RUNS = {
     "run_1": r"matched_sheets\matched_master_sheet_2b-temp1_gpt-4.1-mini_bs-1.xlsx",
     "run_2": r"matched_sheets\matched_master_sheet_2c-temp1_gpt-4.1-mini_bs-1.xlsx",
     "run_3": r"matched_sheets\matched_master_sheet_2-temp1_gpt-4.1-mini_bs-1.xlsx",
-    # "run_4": r"matched_sheets\matched_master_sheet_2_gpt-4.1-mini_bs-1_temp1.xlsx",
 }
 
 
