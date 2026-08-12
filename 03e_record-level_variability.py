@@ -8,11 +8,12 @@ ID_COL = "MesH_ID"
 LLM_DECISION_COL = "decision_LLM_2"
 
 RUNS = {
-    "run_1_QW0": r"matched_sheets\matched_master_sheet_2_qwen3_8b_bs-1.xlsx",
-    "run_2_QW1": r"matched_sheets\matched_master_sheet_2-temp1_qwen3_8b_bs-1.xlsx",
+    "run_1_gpt4.1": r"matched_sheets\matched_master_sheet_2-temp1_gpt-4.1-mini_bs-1.xlsx",
+    "run_2_gpt4.1": r"matched_sheets\matched_master_sheet_2b-temp1_gpt-4.1-mini_bs-1.xlsx",
+    "run_3_gpt4.1": r"matched_sheets\matched_master_sheet_2c-temp1_gpt-4.1-mini_bs-1.xlsx",
 }
 
-OUTPUT_DIR = Path(r"record_level_variability\qwen3_8b_bs-1")
+OUTPUT_DIR = Path(r"record_level_variability\gpt-4.1-mini_3_runs")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
