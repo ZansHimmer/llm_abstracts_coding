@@ -170,6 +170,9 @@ def read_matched_sheet(file_path):
         ]
     )
 
+    df = df.iloc[:5000].copy()
+    df = df.reset_index(drop=True)
+
     duplicate_mask = df[ID_COL].duplicated(
         keep="last"
     )
